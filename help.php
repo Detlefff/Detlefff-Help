@@ -1,6 +1,9 @@
 <?php
 class help extends Script
 {
+	protected $description = 'Help-Plugin. Returns the help-message and description of a plugin';
+	protected $helpMessage = "'help': Returns the description and helpmessage of every plugin\n"
+						  . "'help <PLUGINNAME>': Returns the description and helpmessage of the specified plugin";
 	private $helpMessages = array();
 	private $plugins = array();
 
@@ -10,6 +13,7 @@ class help extends Script
 			//Get a list of all installed plugins
 			$plugins = glob(getcwd() . '/scripts/*' , GLOB_ONLYDIR);
 
+			$message = '';
 			//Loop through the Plugins
 			foreach ($plugins as $plugin) {
 				$pluginName = array_pop(explode('/', $plugin));
@@ -19,31 +23,16 @@ class help extends Script
 				//Instanciate the plugin, to get the needed informations
 				$instance = new $pluginName($this->message, $this->matches, $this->waConnection);
 
-				if(empty($instace->description)) {
-					$this->plugins[$pluginName] = 'No description provided';
-				} else {
-					$this->plugins[$pluginName] = $instance->description;
+				//Build the message
+				if(!empty($message)) {
+					$message .= "-----\n";
 				}
-
-				if(empty($instance->helpMessage)) {
-					//Should we send the regex?
-					$this->helpMessages[$pluginName] = 'No help-message provided :(';
-				} else {
-					$this->helpMessages[$pluginName] = $instance->helpMessage;
-				}
+				$message .= strtoupper($pluginName) . ":\n";
+				$message .= $instance->usage() . "\n";
 
 				$instance->__destruct();
 			}
 
-			//Build the final message
-			$message = '';
-			foreach ($this->plugins as $key => $value) {
-				if(!empty($message)) {
-					$message .= "-----\n";
-				}
-				$message .= $key . ":\n" . $value . "\n";
-				$message .= $this->helpMessages[$key] . "\n";
-			}
 			$this->send($message);
 		} else {
 			//Display help only for the specified moule
@@ -52,21 +41,7 @@ class help extends Script
 			//Instanciate the Object,so that we can get the $helpMessage and $description
 			$instance = new $this->matches[1]($this->message, $this->matches, $this->waConnection);
 
-			if(empty($instace->description)) {
-				$message = "No description provided\n";
-			} else {
-				$message = $instance->description . "\n";
-			}
-
-			$message .= "----------\n";
-
-			if(empty($instance->helpMessage)) {
-				//Should we send the regex?
-				$message .= 'No help-message provided :(';
-			} else {
-				$message .= $instance->helpMessage;
-			}
-			$this->send($message);
+			$this->send($instance->usage());
 		}
 	}
 }
