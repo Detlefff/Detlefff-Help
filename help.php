@@ -36,7 +36,11 @@ class help extends Script
 			$this->send($message);
 		} else {
 			//Display help only for the specified moule
-			require_once getcwd() . '/scripts/' . $this->matches[1] . '/' . $this->matches[1] . '.php';
+			try {
+				require_once getcwd() . '/scripts/' . $this->matches[1] . '/' . $this->matches[1] . '.php';
+			} catch (Exception $e) {
+				$this->send('The module ' . $this->matches[1] . ' is not available.');
+			}
 
 			//Instanciate the Object,so that we can get the $helpMessage and $description
 			$instance = new $this->matches[1]($this->message, $this->matches, $this->waConnection);
