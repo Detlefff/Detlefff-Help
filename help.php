@@ -37,9 +37,15 @@ class help extends Script
 		} else {
 			//Display help only for the specified moule
 			try {
-				require_once getcwd() . '/scripts/' . $this->matches[1] . '/' . $this->matches[1] . '.php';
-			} catch (Exception $e) {
-				$this->send('The module ' . $this->matches[1] . ' is not available.');
+				$pluginPath = getcwd() . '/scripts/' . $this->matches[1] . '/' . $this->matches[1] . '.php';
+
+				if (!file_exists($pluginPath)) {
+					throw new Exception ($pluginPath . ' does not exist');
+				} else {
+					require_once($pluginPath);
+				}
+			} catch(Exception $e) {
+				$this->send('The specified plugin ' . $this->matches[1] . ' does not exist!');
 			}
 
 			//Instanciate the Object,so that we can get the $helpMessage and $description
