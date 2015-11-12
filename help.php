@@ -43,15 +43,16 @@ class help extends Script
 					throw new Exception ($pluginPath . ' does not exist');
 				} else {
 					require_once($pluginPath);
+
+					//Instanciate the Object,so that we can get the $helpMessage and $description
+					$instance = new $this->matches[1]($this->message, $this->matches, $this->waConnection);
+
+					$this->send($instance->usage());
 				}
 			} catch(Exception $e) {
 				$this->send('The specified plugin ' . $this->matches[1] . ' does not exist!');
 			}
 
-			//Instanciate the Object,so that we can get the $helpMessage and $description
-			$instance = new $this->matches[1]($this->message, $this->matches, $this->waConnection);
-
-			$this->send($instance->usage());
 		}
 	}
 }
