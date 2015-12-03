@@ -1,8 +1,8 @@
 <?php
 class help extends Script
 {
-	protected $description = 'Help-Plugin. Returns the help-message and description of a plugin';
-	protected $helpMessage = "'help': Returns the description and helpmessage of every plugin\n"
+	protected static $description = 'Help-Plugin. Returns the help-message and description of a plugin';
+	protected static $helpMessage = "'help': Returns the description and helpmessage of every plugin\n"
 						  . "'help <PLUGINNAME>': Returns the description and helpmessage of the specified plugin";
 	private $helpMessages = array();
 	private $plugins = array();
@@ -20,17 +20,12 @@ class help extends Script
 
 				require_once $plugin . '/' . $pluginName . '.php';
 
-				//Instanciate the plugin, to get the needed informations
-				$instance = new $pluginName($this->message, $this->matches, $this->waConnection);
-
 				//Build the message
 				if(!empty($message)) {
 					$message .= "-----\n";
 				}
 				$message .= strtoupper($pluginName) . ":\n";
-				$message .= $instance->usage() . "\n";
-
-				$instance->__destruct();
+				$message .= $pluginName::usage() . "\n";
 			}
 
 			$this->send($message);
@@ -43,11 +38,8 @@ class help extends Script
 					throw new Exception ($pluginPath . ' does not exist');
 				} else {
 					require_once($pluginPath);
-
-					//Instanciate the Object,so that we can get the $helpMessage and $description
-					$instance = new $this->matches[1]($this->message, $this->matches, $this->waConnection);
-
-					$this->send($instance->usage());
+					
+					$this->send($this->matches[1]::usage());
 				}
 			} catch(Exception $e) {
 				$this->send('The specified plugin ' . $this->matches[1] . ' does not exist!');
